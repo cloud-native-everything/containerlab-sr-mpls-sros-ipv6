@@ -3,14 +3,26 @@
 Versions used are:
 * containerlab 0.25.1
 * vr-sros 22.5.R2 (requires license)
-* gnmic version 0.20.4
+
+SROS image was created using [VR Network Lab](https://github.com/vrnetlab/vrnetlab)
+IMPORTANT: vr-sos must be set as an image in docker to be pull directly by containerlab
+```
+[root@dell02 clab-sr-mpls]# docker images | grep vr-sros
+vr-sros                               22.5.R2                         f33cd7a3732a        3 months ago        965MB
+```
 
 ## Overview
 Lab built with containerlab to test sr-mpls usinf sr-isis.
 
-If you are new wit container lab, we recommed to check the post regading [Nokia SROS in the manual](https://containerlab.dev/manual/kinds/vr-sros/)
+If you are new with container lab, we recommed to check the post regading [Nokia SROS in the manual](https://containerlab.dev/manual/kinds/vr-sros/)
 
 Details of SR-MPLS, TE-LSP and Fast ReRoute (FRR) capability by pre-computing Loop-Free Alternate (LFA) paths, and other technologies used on this demo, check post: [Segment Routing with Nokia 7750 on GNS3 by Derek Cheung](https://derekcheung.medium.com/segment-routing-b69f6ea2e3f5)
+
+# Setting the lab
+Use containerlab a specified topology
+```
+clab deploy --topo topo.yml
+```
 
 
 ## Check status of services

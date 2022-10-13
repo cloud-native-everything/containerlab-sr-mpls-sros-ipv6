@@ -1,0 +1,52 @@
+name: srmpls
+
+mgmt:
+  network: clab
+
+topology:
+  nodes:
+    origin1:
+      kind: linux
+      image: alpine:latest
+    destination1:
+      kind: linux
+      image: alpine:latest
+    origin2:
+      kind: linux
+      image: alpine:latest
+    destination2:
+      kind: linux
+      image: alpine:latest
+    router1:
+      kind: vr-sros
+      image: vr-sros:22.5.R2
+      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
+      license: license-sros22.txt      
+    router2:
+      kind: vr-sros
+      image: vr-sros:22.5.R2
+      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
+      license: license-sros22.txt 
+    router3:
+      kind: vr-sros
+      image: vr-sros:22.5.R2
+      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
+      license: license-sros22.txt 
+    router4:
+      kind: vr-sros
+      image: vr-sros:22.5.R2
+      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
+      license: license-sros22.txt 
+
+                  
+  links:
+    - endpoints: ["router1:eth3", "origin1:e1"]
+    - endpoints: ["router4:eth3", "destination1:e1"]
+    - endpoints: ["router1:eth4", "origin2:e1"]
+    - endpoints: ["router4:eth4", "destination2:e1"]
+    - endpoints: ["router1:eth1", "router2:eth1"]
+    - endpoints: ["router1:eth2", "router3:eth1"]
+    - endpoints: ["router2:eth2", "router3:eth2"]
+    - endpoints: ["router2:eth3", "router4:eth2"]
+    - endpoints: ["router3:eth3", "router4:eth1"]
+
