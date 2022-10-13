@@ -23,11 +23,32 @@ Use containerlab a specified topology
 ```
 clab deploy --topo topo.yml
 ```
+Checking elements in the lab
+```
+[root@dell02 clab-sr-mpls]# clab inspect --topo topo.yml
+INFO[0000] Parsing & checking topology file: topo.yml
++---+--------------------------+--------------+-----------------+---------+---------+----------------+----------------------+
+| # |           Name           | Container ID |      Image      |  Kind   |  State  |  IPv4 Address  |     IPv6 Address     |
++---+--------------------------+--------------+-----------------+---------+---------+----------------+----------------------+
+| 1 | clab-srmpls-destination1 | 9bd285d5be17 | alpine:latest   | linux   | running | 172.20.20.2/24 | 2001:172:20:20::2/64 |
+| 2 | clab-srmpls-destination2 | 18fcb789408e | alpine:latest   | linux   | running | 172.20.20.7/24 | 2001:172:20:20::7/64 |
+| 3 | clab-srmpls-origin1      | 0e3edd85ea0b | alpine:latest   | linux   | running | 172.20.20.3/24 | 2001:172:20:20::3/64 |
+| 4 | clab-srmpls-origin2      | 08024876191f | alpine:latest   | linux   | running | 172.20.20.5/24 | 2001:172:20:20::5/64 |
+| 5 | clab-srmpls-router1      | b1c4368dc299 | vr-sros:22.5.R2 | vr-sros | running | 172.20.20.4/24 | 2001:172:20:20::4/64 |
+| 6 | clab-srmpls-router2      | e3583a56107f | vr-sros:22.5.R2 | vr-sros | running | 172.20.20.6/24 | 2001:172:20:20::6/64 |
+| 7 | clab-srmpls-router3      | c3fd1648a679 | vr-sros:22.5.R2 | vr-sros | running | 172.20.20.8/24 | 2001:172:20:20::8/64 |
+| 8 | clab-srmpls-router4      | 97a35e3939d0 | vr-sros:22.5.R2 | vr-sros | running | 172.20.20.9/24 | 2001:172:20:20::9/64 |
++---+--------------------------+--------------+-----------------+---------+---------+----------------+----------------------+
+```
+
+You have direct access (after one min) to management interface via ssh admin/admin
+Remember to change the CLI to model-driven if this is still in Classic.
+You can copy and paste router settings form yaml files directly to CLI after /configure path
 
 
 ## Check status of services
 
-Next commands have been done using classic command line management interface
+Next commands have been done using <b>Classic command line management interface mode</b>
 ```
 A:router1# show router isis adjacency
 
