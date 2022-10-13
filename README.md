@@ -4,8 +4,14 @@ This lab is showing a simple configuration and verification of SR on Nokia’s 7
 
 ## Network Setup
 
-See topology on the next image
+See topology on the next image:
+
 ![Segment Routing ISIS TE LSP Path Containlerlab](images/segment-routing-isis-te-lsp-path-lab-containerlab-sros-nokia-model-driven-mdm.png)
+
+
+We created two ePipes using different configurations
+* non-TE LSP — R1 — R2 — R4 (i.e., the ISIS’ shortest path)
+* TE LSP — R1 — R3 — R2 — R4 (i.e., the desired TE network path by the carrier for the ePipe service)
 
 ## Requeriments
 Versions used are:
@@ -88,6 +94,9 @@ PING 10.10.10.102 (10.10.10.102): 56 data bytes
 ## Check status of services
 
 Some commands have been done using <b>Classic command line management interface mode</b>
+
+To make sure the ISIS config is working, run the following commands to verify ISIS adjacency and routing table.
+
 ```
 A:router1# show router isis adjacency
 
@@ -101,7 +110,11 @@ router3                  L2    Up    20   toR3                          0
 -------------------------------------------------------------------------------
 Adjacencies : 2
 ===============================================================================
+```
 
+LSP signaled by SR-ISIS will simply follow the ISIS’ shortest path between R1 and R4. The following commands verify that the shortest path (non-TE) LSP is created between R1 and R4 so that we can use it for our ePipe 100
+
+```
 A:router1# oam lsp-ping sr-isis prefix 1.1.1.4/32
 LSP-PING 1.1.1.4/32: 80 bytes MPLS payload
 Seq=1, send from intf toR2, reply from 1.1.1.4
@@ -115,6 +128,8 @@ lsp-trace to 1.1.1.4/32: 0 hops min, 0 hops max, 104 byte packets
 1  1.1.1.2  rtt=1.69ms rc=8(DSRtrMatchLabel) rsc=1
 2  1.1.1.4  rtt=0.734ms rc=3(EgressRtr) rsc=1
 ```
+
+The TLDP session for signaling the service tunnel for ePipe 100 between R1 and R4, and ePipe 101 through the TE path are established. Check it via the following command.
 
 ```
 A:admin@router1# show service sdp-using
@@ -131,24 +146,9 @@ SvcId      SdpId              Type   Far End              Opr   I.Label E.Label
 Number of SDPs : 2
 -------------------------------------------------------------------------------
 ===============================================================================
-
-[/]
-A:admin@router1# show service sdp
-
-============================================================================
-Services: Service Destination Points
-============================================================================
-SdpId  AdmMTU  OprMTU  Far End          Adm  Opr         Del     LSP   Sig
-----------------------------------------------------------------------------
-4      0       9182    1.1.1.4          Up   Up          MPLS    T     TLDP
-5      0       9190    1.1.1.4          Up   Up          MPLS    I     TLDP
-----------------------------------------------------------------------------
-Number of SDPs : 2
-----------------------------------------------------------------------------
-Legend: R = RSVP, L = LDP, B = BGP, M = MPLS-TP, n/a = Not Applicable
-        I = SR-ISIS, O = SR-OSPF, T = SR-TE, F = FPE
-============================================================================
 ```
+
+LSP Trace through the TE LSP shows that traffic from R1 to R4 goes through R3 and R2. We can see TE Path is working via the following commands
 
 ```
 *A:router1# oam lsp-trace sr-te "lsp_R1-R4-TE"
@@ -158,7 +158,74 @@ lsp-trace to lsp_R1-R4-TE: 0 hops min, 0 hops max, 176 byte packets
 2  1.1.1.2  rtt=1.97ms rc=3(EgressRtr) rsc=2
 2  1.1.1.2  rtt=1.50ms rc=8(DSRtrMatchLabel) rsc=1
 3  1.1.1.4  rtt=1.25ms rc=3(EgressRtr) rsc=1
+*A:router1# show router mpls sr-te-lsp "lsp_R1-R4-TE" path detail
+
+===============================================================================
+MPLS SR-TE LSP lsp_R1-R4-TE
+Path  (Detail)
+===============================================================================
+Legend :
+    S      - Strict                      L      - Loose
+    A-SID  - Adjacency SID               N-SID  - Node SID
+    +      - Inherited
+===============================================================================
+-------------------------------------------------------------------------------
+LSP SR-TE lsp_R1-R4-TE
+Path  R1-R4-TE-strict
+-------------------------------------------------------------------------------
+LSP Name    : lsp_R1-R4-TE
+Path LSP ID      : 5632
+From             : 1.1.1.1
+To               : 1.1.1.4
+Admin State      : Up                      Oper State        : Up
+Path Name   : R1-R4-TE-strict
+Path Type        : Primary
+Path Admin       : Up                      Path Oper         : Up
+Path Up Time     : 0d 02:17:24             Path Down Time    : 0d 00:00:00
+Retry Limit      : 0                       Retry Timer       : 30 sec
+Retry Attempt    : 0                       Next Retry In     : 0 sec
+
+PathCompMethod   : none                    OperPathCompMethod: none
+MetricType       : igp                     Oper MetricType   : igp
+LocalSrProt      : preferred               Oper LocalSrProt  : N/A
+LabelStackRed    : Disabled                Oper LabelStackRed: N/A
+
+Bandwidth        : No Reservation          Oper Bandwidth    : 0 Mbps
+Hop Limit        : 255                     Oper HopLimit     : 255
+Setup Priority   : 7                       Oper SetupPriority: 7
+Hold Priority    : 0                       Oper HoldPriority : 0
+Inter-area       : N/A
+
+PCE Updt ID      : 0                       PCE Updt State    : None
+PCE Upd Fail Code: noError
+
+PCE Report       : Disabled+               Oper PCE Report   : Disabled
+PCE Control      : Disabled                Oper PCE Control  : Disabled
+
+Include Groups   :                         Oper IncludeGroups:
+None                                           None
+Exclude Groups   :                         Oper ExcludeGroups:
+None                                           None
+Last Resignal    : n/a
+
+IGP/TE Metric    : 16777215                Oper Metric       : 16777215
+Oper MTU         : 9186                    Path Trans        : 1
+Degraded         : False
+Failure Code     : noError
+Failure Node     : n/a
+Explicit Hops    :
+                  1.1.1.3(S)
+               -> 1.1.1.2(S)
+               -> 1.1.1.4(S)
+Actual Hops      :
+    10.1.3.2(1.1.1.3)(A-SID)                     Record Label        : 524285
+ -> 10.2.3.1(1.1.1.2)(A-SID)                     Record Label        : 524287
+ -> 10.2.4.2(1.1.1.4)(A-SID)                     Record Label        : 524285
+
+===============================================================================
 ```
+The SR Adjacency-SID (524285 and 524287) is same as the labels specified in the command — show router mpls sr-te-lsp “lsp_R1-R4-TE” path detail.
+The following shows the LFA pre-computed for each destination:
 
 ```
 *A:router1# show router fp-tunnel-table 1
