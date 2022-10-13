@@ -1,10 +1,11 @@
-# Segment Routing Lab: SR-MPLS(SR-ISIS) with non-TE-LSP and TE-LSP paths
+# Segment Routing Lab: SR-MPLS SR-ISIS/TE-LSP Demo
 
 This lab is showing a simple configuration and verification of SR on Nokia’s 7750 routers to signal both IGP’s shortest path and TE LSPs similar to the capabilities of LDP and RSVP-TE MPLS transport label signaling protocols respectively. SR’s built-in capability for Fast ReRoute (FRR) using Loop-Free Alternate (LFA) is also shown
 
 ## Network Setup
 
-
+See topology on the next image
+![Segment Routing ISIS TE LSP Path Containlerlab](images/segment-routing-isis-te-lsp-path-lab-containerlab-sros-nokia-model-driven-mdm.png)
 
 ## Requeriments
 Versions used are:
