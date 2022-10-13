@@ -1,0 +1,125 @@
+card 1 {
+    card-type iom-v
+    mda 1 {
+        mda-type m20-v
+    }
+    mda 2 {
+    }
+    mda 3 {
+    }
+    mda 4 {
+    }
+    fp 1 {
+    }
+}
+port 1/1/1 {
+    admin-state enable
+}
+port 1/1/2 {
+    admin-state enable
+}
+port 1/1/3 {
+    admin-state enable
+}
+router "Base" {
+    autonomous-system 65501
+    interface "system" {
+        ipv4 {
+            primary {
+                address 1.1.1.3
+                prefix-length 32
+            }
+        }
+    }
+    interface "toR1" {
+        port 1/1/1
+        ipv4 {
+            bfd {
+                admin-state enable
+            }
+            primary {
+                address 10.1.3.2
+                prefix-length 29
+            }
+        }
+    }
+    interface "toR2" {
+        port 1/1/2
+        ipv4 {
+            bfd {
+                admin-state enable
+            }
+            primary {
+                address 10.2.3.2
+                prefix-length 29
+            }
+        }
+    }
+    interface "toR4" {
+        port 1/1/3
+        ipv4 {
+            bfd {
+                admin-state enable
+            }
+            primary {
+                address 10.3.4.1
+                prefix-length 29
+            }
+        }
+    }
+    mpls-labels {
+        sr-labels {
+            start 519000
+            end 524000
+        }
+    }
+    isis 0 {
+        admin-state enable
+        advertise-router-capability as
+        ipv6-routing native
+        level-capability 2
+        traffic-engineering true
+        area-address [49.01]
+        loopfree-alternate {
+        }
+        segment-routing {
+            admin-state enable
+            prefix-sid-range {
+                start-label 519000
+                max-index 5000
+            }
+        }
+        interface "system" {
+            ipv4-node-sid {
+                index 3
+            }
+        }
+        interface "toR1" {
+            interface-type point-to-point
+            bfd-liveness {
+                ipv4 {
+                    include-bfd-tlv true
+                }
+            }
+        }
+        interface "toR2" {
+            interface-type point-to-point
+            bfd-liveness {
+                ipv4 {
+                    include-bfd-tlv true
+                }
+            }
+        }
+        interface "toR4" {
+            interface-type point-to-point
+            bfd-liveness {
+                ipv4 {
+                    include-bfd-tlv true
+                }
+            }
+        }
+        level 2 {
+            wide-metrics-only true
+        }
+    }
+}
