@@ -8,9 +8,9 @@ Versions used are:
 ## Overview
 Lab built with containerlab to test sr-mpls usinf sr-isis.
 
-If you are new wit container lab, we recommed to check the post regading [Nokia SROS in the manual] (https://containerlab.dev/manual/kinds/vr-sros/)
+If you are new wit container lab, we recommed to check the post regading [Nokia SROS in the manual](#https://containerlab.dev/manual/kinds/vr-sros/)
 
-Details of SR-MPLS, TE-LSP and Fast ReRoute (FRR) capability by pre-computing Loop-Free Alternate (LFA) paths, and other technologies used on this demo, check post: ]Segment Routing with Nokia 7750 on GNS3 by Derek Cheung](https://derekcheung.medium.com/segment-routing-b69f6ea2e3f5)
+Details of SR-MPLS, TE-LSP and Fast ReRoute (FRR) capability by pre-computing Loop-Free Alternate (LFA) paths, and other technologies used on this demo, check post: ]Segment Routing with Nokia 7750 on GNS3 by Derek Cheung](#https://derekcheung.medium.com/segment-routing-b69f6ea2e3f5)
 
 
 ## Check status of services
