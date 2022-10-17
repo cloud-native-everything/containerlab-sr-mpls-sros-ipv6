@@ -32,6 +32,9 @@ port 1/1/4 {
 }
 router "Base" {
     autonomous-system 65501
+    ipv6-te-router-id {
+        interface "system"
+    }    
     interface "system" {
         ipv6 {
             address fd00::4 {
@@ -76,6 +79,9 @@ router "Base" {
         area-address [49.01]
         loopfree-alternate {
         }
+        traffic-engineering-options {
+            ipv6 true
+        }         
         segment-routing {
             admin-state enable
             prefix-sid-range {

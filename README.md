@@ -1,5 +1,4 @@
 # Segment Routing Lab: SR-MPLS SR-ISIS/TE-LSP IPv6 Demo
-# (work in progress...)
 
 This lab is showing a simple configuration and verification of SR on Nokia routers to signal both IGP’s shortest path and TE LSPs similar to the capabilities of LDP and RSVP-TE MPLS transport label signaling protocols respectively. SR’s built-in capability for Fast ReRoute (FRR) using Loop-Free Alternate (LFA) is also shown
 
@@ -33,6 +32,7 @@ vr-sros                               22.5.R2                         f33cd7a373
 This lab is showing a simple configuration and verification of SR on Nokia routers to signal both IGP’s shortest path and TE LSPs similar to the capabilities of LDP and RSVP-TE MPLS transport label signaling protocols respectively. SR’s built-in capability for Fast ReRoute (FRR) using Loop-Free Alternate (LFA) is also shown
 
 Lab built with containerlab to test sr-mpls using sr-isis.
+<b>All network and system interfaces are IPv6 only.</b>
 
 An ePipe 100 is setup between R1 and R4 so that ORG1 and DEST1 connected to the Service Access Ports (SAPs) of the ePipe 100 can communicate with each other as the two PCs are on the same IP subnet of 10.10.10.0/24. Another ePipe 101 was created via TE LSP via a longer path between R1-R2-R3-R4 routers. Traffic Engineering (TE) is the capability where the path of each LSP can be manually defined hop-by-hop or signalled based on meeting certain QoS requirements instead of just following the IGP’s shortest path as in the case of LDP. 
 
@@ -106,7 +106,7 @@ Some commands have been done using <b>Classic command line management interface 
 
 First, check all the routes are working:
 ```
-A:admin@router1# show router route-table ipv6 all
+A:router1# show router route-table ipv6 all
 
 ===============================================================================
 IPv6 Route Table (Router: Base)
@@ -114,28 +114,28 @@ IPv6 Route Table (Router: Base)
 Dest Prefix[Flags]                            Type    Proto     Age        Pref
       Next Hop[Interface Name]                         Active     Metric
 -------------------------------------------------------------------------------
-fd00::1/128                                   Local   Local     05h13m02s  0
+fd00::1/128                                   Local   Local     00h13m07s  0
        system                                          Y            0
-fd00::2/128 [L]                               Remote  ISIS      01h21m48s  18
-       fe80::5054:ff:fee0:ca00-"toR2"                  Y            10
-fd00::3/128 [L]                               Remote  ISIS      01h18m03s  18
-       fe80::5054:ff:fe7d:5500-"toR3"                  Y            10
-fd00::4/128 [L]                               Remote  ISIS      00h04m20s  18
-       fe80::5054:ff:fe7d:5500-"toR3"                  Y            20
-fd01::1:2:0/126                               Local   Local     05h12m51s  0
+fd00::2/128 [L]                               Remote  ISIS      00h08m53s  18
+       fe80::5054:ff:fe1f:d300-"toR2"                  Y            10
+fd00::3/128 [L]                               Remote  ISIS      00h08m14s  18
+       fe80::5054:ff:fe85:6a00-"toR3"                  Y            10
+fd00::4/128 [L]                               Remote  ISIS      00h02m58s  18
+       fe80::5054:ff:fe1f:d300-"toR2"                  Y            20
+fd01::1:2:0/126                               Local   Local     00h12m55s  0
        toR2                                            Y            0
-fd01::1:2:1/128                               Local   Host      05h12m51s  0
+fd01::1:2:1/128                               Local   Host      00h12m55s  0
        toR2                                            Y            0
-fd01::1:3:0/126                               Local   Local     05h12m50s  0
+fd01::1:3:0/126                               Local   Local     00h12m55s  0
        toR3                                            Y            0
-fd01::1:3:1/128                               Local   Host      05h12m50s  0
+fd01::1:3:1/128                               Local   Host      00h12m55s  0
        toR3                                            Y            0
-fd01::2:3:0/126 [L]                           Remote  ISIS      01h18m03s  18
-       fe80::5054:ff:fe7d:5500-"toR3"                  Y            20
-fd01::2:4:0/126 [L]                           Remote  ISIS      01h21m48s  18
-       fe80::5054:ff:fee0:ca00-"toR2"                  Y            20
-fd01::3:4:0/126 [L]                           Remote  ISIS      01h18m03s  18
-       fe80::5054:ff:fe7d:5500-"toR3"                  Y            20
+fd01::2:3:0/126 [L]                           Remote  ISIS      00h08m53s  18
+       fe80::5054:ff:fe1f:d300-"toR2"                  Y            20
+fd01::2:4:0/126 [L]                           Remote  ISIS      00h08m53s  18
+       fe80::5054:ff:fe1f:d300-"toR2"                  Y            20
+fd01::3:4:0/126 [L]                           Remote  ISIS      00h08m14s  18
+       fe80::5054:ff:fe85:6a00-"toR3"                  Y            20
 -------------------------------------------------------------------------------
 No. of Routes: 11
 Flags: n = Number of times nexthop is repeated
@@ -206,7 +206,7 @@ lsp-trace to fd00::4/128: 0 hops min, 0 hops max, 164 byte packets
 The TLDP session for signaling the service tunnel for ePipe 100 between R1 and R4, and ePipe 101 through the TE path are established. Check it via the following command.
 
 ```
-A:router1#  /show service sdp-using
+A:router1# show service sdp-using
 
 ===============================================================================
 SDP Using
@@ -214,9 +214,9 @@ SDP Using
 SvcId      SdpId              Type   Far End              Opr   I.Label E.Label
                                                           State
 -------------------------------------------------------------------------------
-100        4:100              Spok                        Down  524283  524283
+100        4:100              Spok                        Up    524283  524286
                                      fd00::4
-101        5:101              Spok                        Up    524284  524284
+101        5:101              Spok                        Up    524284  524287
                                      fd00::4
 -------------------------------------------------------------------------------
 Number of SDPs : 2
@@ -227,14 +227,141 @@ Number of SDPs : 2
 LSP Trace through the TE LSP shows that traffic from R1 to R4 goes through R3 and R2. We can see TE Path is working via the following commands
 
 ```
-*A:router1# oam lsp-trace sr-te "lsp_R1-R4-TE"
+A:router1# oam lsp-trace sr-te "lsp_R1-R4-TE"
+lsp-trace to lsp_R1-R4-TE: 0 hops min, 0 hops max, 296 byte packets
+1  fd00::3  rtt=1.41ms rc=3(EgressRtr) rsc=3
+1  fd00::3  rtt=1.95ms rc=8(DSRtrMatchLabel) rsc=2
+2  fd00::2  rtt=1.08ms rc=3(EgressRtr) rsc=2
+2  fd00::2  rtt=5.63ms rc=8(DSRtrMatchLabel) rsc=1
+3  fd00::4  rtt=1.31ms rc=3(EgressRtr) rsc=1
+A:router1# show router mpls sr-te-lsp "lsp_R1-R4-TE" path detail
 
-*A:router1# show router mpls sr-te-lsp "lsp_R1-R4-TE" path detail
+===============================================================================
+MPLS SR-TE LSP lsp_R1-R4-TE
+Path  (Detail)
+===============================================================================
+Legend :
+    S      - Strict                      L      - Loose
+    A-SID  - Adjacency SID               N-SID  - Node SID
+    +      - Inherited
+===============================================================================
+-------------------------------------------------------------------------------
+LSP SR-TE lsp_R1-R4-TE
+Path  R1-R4-TE-strict
+-------------------------------------------------------------------------------
+LSP Name    : lsp_R1-R4-TE
+Path LSP ID      : 59392
+From             : fd00::1
+To               : fd00::4
+Admin State      : Up                      Oper State        : Up
+Path Name   : R1-R4-TE-strict
+Path Type        : Primary
+Path Admin       : Up                      Path Oper         : Up
+Path Up Time     : 0d 00:01:12             Path Down Time    : 0d 00:00:00
+Retry Limit      : 0                       Retry Timer       : 30 sec
+Retry Attempt    : 0                       Next Retry In     : 0 sec
+
+PathCompMethod   : none                    OperPathCompMethod: none
+MetricType       : igp                     Oper MetricType   : igp
+LocalSrProt      : preferred               Oper LocalSrProt  : N/A
+LabelStackRed    : Disabled                Oper LabelStackRed: N/A
+
+Bandwidth        : No Reservation          Oper Bandwidth    : 0 Mbps
+Hop Limit        : 255                     Oper HopLimit     : 255
+Setup Priority   : 7                       Oper SetupPriority: 7
+Hold Priority    : 0                       Oper HoldPriority : 0
+Inter-area       : N/A
+
+PCE Updt ID      : 0                       PCE Updt State    : None
+PCE Upd Fail Code: noError
+
+PCE Report       : Disabled+               Oper PCE Report   : Disabled
+PCE Control      : Disabled                Oper PCE Control  : Disabled
+
+Include Groups   :                         Oper IncludeGroups:
+None                                           None
+Exclude Groups   :                         Oper ExcludeGroups:
+None                                           None
+Last Resignal    : n/a
+
+IGP/TE Metric    : 16777215                Oper Metric       : 16777215
+Oper MTU         : 9186                    Path Trans        : 1
+Degraded         : False
+Failure Code     : noError
+Failure Node     : n/a
+Explicit Hops    :
+                  fd00::3(S)
+               -> fd00::2(S)
+               -> fd00::4(S)
+Actual Hops      :
+    fd01::1:3:2
+    (fd00::3)(A-SID)
+    Record Label        : 524285
+    fd01::2:3:1
+ -> (fd00::2)(A-SID)
+    Record Label        : 524286
+    fd01::2:4:2
+ -> (fd00::4)(A-SID)
+    Record Label        : 524284
+
+===============================================================================
 
 ```
-The SR Adjacency-SID (524285 and 524287) is same as the labels specified in the command — show router mpls sr-te-lsp “lsp_R1-R4-TE” path detail.
+The SR Adjacency-SID (524285 and 524286) is same as the labels specified in the command — show router mpls sr-te-lsp “lsp_R1-R4-TE” path detail.
 The following shows the LFA pre-computed for each destination:
 
 ```
-*A:router1# show router fp-tunnel-table 1
+A:router1# show router fp-tunnel-table 1 ipv6
+
+===============================================================================
+IPv6 Tunnel Table Display
+
+Legend:
+label stack is ordered from bottom-most to top-most
+B - FRR Backup
+===============================================================================
+Destination                                  Protocol         Tunnel-ID
+  Lbl/SID
+    NextHop                                                   Intf/Tunnel
+  Lbl/SID (backup)
+    NextHop   (backup)
+-------------------------------------------------------------------------------
+fd00::2/128                                  SR-ISIS-0         524290
+  519002
+    fe80::5054:ff:fe1f:d300-"toR2"                             1/1/1
+  519002
+    fe80::5054:ff:fe85:6a00-"toR3"(B)                          1/1/2
+fd00::3/128                                  SR-ISIS-0         524292
+  519003
+    fe80::5054:ff:fe85:6a00-"toR3"                             1/1/2
+  519003
+    fe80::5054:ff:fe1f:d300-"toR2"(B)                          1/1/1
+fd00::4/128                                  SR-ISIS-0         524293
+  519004
+    fe80::5054:ff:fe1f:d300-"toR2"                             1/1/1
+  519004
+    fe80::5054:ff:fe85:6a00-"toR3"(B)                          1/1/2
+fd00::4/128                                  SR-TE             655362
+  524284/524286
+    fe80::5054:ff:fe85:6a00-"toR3"                             SR
+fd00::4/128                                  SR-TE             655363
+  3
+    fd00::4                                                    SR
+fd00::4/128                                  SR-TE             655364
+  519004/519002
+    fd00::3                                                    SR
+fe80::5054:ff:fe1f:d300-"toR2"/128           SR                524289
+  3
+    fe80::5054:ff:fe1f:d300-"toR2"                             1/1/1
+  519002
+    fe80::5054:ff:fe85:6a00-"toR3"(B)                          1/1/2
+fe80::5054:ff:fe85:6a00-"toR3"/128           SR                524291
+  3
+    fe80::5054:ff:fe85:6a00-"toR3"                             1/1/2
+  519003
+    fe80::5054:ff:fe1f:d300-"toR2"(B)                          1/1/1
+-------------------------------------------------------------------------------
+Total Entries : 8
+-------------------------------------------------------------------------------
+===============================================================================
 ````
