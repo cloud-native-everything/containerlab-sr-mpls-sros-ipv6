@@ -1,12 +1,15 @@
-# Segment Routing Lab: SR-MPLS SR-ISIS/TE-LSP Demo
+# Segment Routing Lab: SR-MPLS SR-ISIS/TE-LSP IPv6 Demo
+# (work in progress...)
 
 This lab is showing a simple configuration and verification of SR on Nokia routers to signal both IGP’s shortest path and TE LSPs similar to the capabilities of LDP and RSVP-TE MPLS transport label signaling protocols respectively. SR’s built-in capability for Fast ReRoute (FRR) using Loop-Free Alternate (LFA) is also shown
+
+All router network interfaces for transport are <b>using IPv6</b>
 
 ## Network Setup
 
 See topology on the next image:
 
-![Segment Routing ISIS TE LSP Path Containlerlab](images/segment-routing-isis-te-lsp-path-lab-containerlab-sros-nokia-model-driven-mdm.png)
+![Segment Routing ISIS TE LSP Path Containlerlab](images/segment-routing-isis-te-lsp-path-lab-containerlab-sros-nokia-model-driven-mdm-ipv6.png)
 
 
 We created two ePipes using different configurations
@@ -101,6 +104,71 @@ PING 10.10.10.102 (10.10.10.102): 56 data bytes
 
 Some commands have been done using <b>Classic command line management interface mode</b>
 
+First, check all the routes are working:
+```
+A:admin@router1# show router route-table ipv6 all
+
+===============================================================================
+IPv6 Route Table (Router: Base)
+===============================================================================
+Dest Prefix[Flags]                            Type    Proto     Age        Pref
+      Next Hop[Interface Name]                         Active     Metric
+-------------------------------------------------------------------------------
+fd00::1/128                                   Local   Local     05h13m02s  0
+       system                                          Y            0
+fd00::2/128 [L]                               Remote  ISIS      01h21m48s  18
+       fe80::5054:ff:fee0:ca00-"toR2"                  Y            10
+fd00::3/128 [L]                               Remote  ISIS      01h18m03s  18
+       fe80::5054:ff:fe7d:5500-"toR3"                  Y            10
+fd00::4/128 [L]                               Remote  ISIS      00h04m20s  18
+       fe80::5054:ff:fe7d:5500-"toR3"                  Y            20
+fd01::1:2:0/126                               Local   Local     05h12m51s  0
+       toR2                                            Y            0
+fd01::1:2:1/128                               Local   Host      05h12m51s  0
+       toR2                                            Y            0
+fd01::1:3:0/126                               Local   Local     05h12m50s  0
+       toR3                                            Y            0
+fd01::1:3:1/128                               Local   Host      05h12m50s  0
+       toR3                                            Y            0
+fd01::2:3:0/126 [L]                           Remote  ISIS      01h18m03s  18
+       fe80::5054:ff:fe7d:5500-"toR3"                  Y            20
+fd01::2:4:0/126 [L]                           Remote  ISIS      01h21m48s  18
+       fe80::5054:ff:fee0:ca00-"toR2"                  Y            20
+fd01::3:4:0/126 [L]                           Remote  ISIS      01h18m03s  18
+       fe80::5054:ff:fe7d:5500-"toR3"                  Y            20
+-------------------------------------------------------------------------------
+No. of Routes: 11
+Flags: n = Number of times nexthop is repeated
+       B = BGP backup route available
+       L = LFA nexthop available
+       S = Sticky ECMP requested
+       E = Inactive best-external BGP route
+===============================================================================
+```
+
+Check prefixes
+```
+A:admin@router1# /show router isis prefix-sids
+
+===============================================================================
+Rtr Base ISIS Instance 0 Prefix/SID Table
+===============================================================================
+Prefix                            SID        Lvl/Typ    SRMS   AdvRtr
+                                   Shared                MT     Flags
+-------------------------------------------------------------------------------
+fd00::1/128                       1          2/Int.      N     router1
+                                      No                    0      NnP
+fd00::2/128                       2          2/Int.      N     router2
+                                      N.A.                  0      NnP
+fd00::3/128                       3          2/Int.      N     router3
+                                      N.A.                  0      NnP
+fd00::4/128                       4          2/Int.      N     router4
+                                      N.A.                  0      NnP
+-------------------------------------------------------------------------------
+No. of Prefix/SIDs: 4 (4 unique)
+-------------------------------------------------------------------------------
+```
+
 To make sure the ISIS config is working, run the following commands to verify ISIS adjacency and routing table.
 
 ```
@@ -121,24 +189,24 @@ Adjacencies : 2
 LSP signaled by SR-ISIS will simply follow the ISIS’ shortest path between R1 and R4. The following commands verify that the shortest path (non-TE) LSP is created between R1 and R4 so that we can use it for our ePipe 100
 
 ```
-A:router1# oam lsp-ping sr-isis prefix 1.1.1.4/32
-LSP-PING 1.1.1.4/32: 80 bytes MPLS payload
-Seq=1, send from intf toR2, reply from 1.1.1.4
-       udp-data-len=32 ttl=255 rtt=1.20ms rc=3 (EgressRtr)
+A:router1# oam lsp-ping sr-isis prefix fd00::4/128
+LSP-PING fd00::4/128: 116 bytes MPLS payload
+Seq=1, send from intf toR3, reply from fd00::4
+       udp-data-len=32 ttl=255 rtt=1.28ms rc=3 (EgressRtr)
 
----- LSP 1.1.1.4/32 PING Statistics ----
+---- LSP fd00::4/128 PING Statistics ----
 1 packets sent, 1 packets received, 0.00% packet loss
-round-trip min = 1.20ms, avg = 1.20ms, max = 1.20ms, stddev = 0.000ms
-A:router1# oam lsp-trace sr-isis prefix 1.1.1.4/32
-lsp-trace to 1.1.1.4/32: 0 hops min, 0 hops max, 104 byte packets
-1  1.1.1.2  rtt=1.69ms rc=8(DSRtrMatchLabel) rsc=1
-2  1.1.1.4  rtt=0.734ms rc=3(EgressRtr) rsc=1
+round-trip min = 1.28ms, avg = 1.28ms, max = 1.28ms, stddev = 0.000ms
+A:router1# oam lsp-trace sr-isis prefix fd00::4/128
+lsp-trace to fd00::4/128: 0 hops min, 0 hops max, 164 byte packets
+1  fd00::3  rtt=1.27ms rc=8(DSRtrMatchLabel) rsc=1
+2  fd00::4  rtt=1.31ms rc=3(EgressRtr) rsc=1
 ```
 
 The TLDP session for signaling the service tunnel for ePipe 100 between R1 and R4, and ePipe 101 through the TE path are established. Check it via the following command.
 
 ```
-A:admin@router1# show service sdp-using
+A:router1#  /show service sdp-using
 
 ===============================================================================
 SDP Using
@@ -146,8 +214,10 @@ SDP Using
 SvcId      SdpId              Type   Far End              Opr   I.Label E.Label
                                                           State
 -------------------------------------------------------------------------------
-100        4:100              Spok   1.1.1.4              Up    524283  524283
-101        5:101              Spok   1.1.1.4              Up    524284  524284
+100        4:100              Spok                        Down  524283  524283
+                                     fd00::4
+101        5:101              Spok                        Up    524284  524284
+                                     fd00::4
 -------------------------------------------------------------------------------
 Number of SDPs : 2
 -------------------------------------------------------------------------------
@@ -158,127 +228,13 @@ LSP Trace through the TE LSP shows that traffic from R1 to R4 goes through R3 an
 
 ```
 *A:router1# oam lsp-trace sr-te "lsp_R1-R4-TE"
-lsp-trace to lsp_R1-R4-TE: 0 hops min, 0 hops max, 176 byte packets
-1  1.1.1.3  rtt=1.53ms rc=3(EgressRtr) rsc=3
-1  1.1.1.3  rtt=1.86ms rc=8(DSRtrMatchLabel) rsc=2
-2  1.1.1.2  rtt=1.97ms rc=3(EgressRtr) rsc=2
-2  1.1.1.2  rtt=1.50ms rc=8(DSRtrMatchLabel) rsc=1
-3  1.1.1.4  rtt=1.25ms rc=3(EgressRtr) rsc=1
+
 *A:router1# show router mpls sr-te-lsp "lsp_R1-R4-TE" path detail
 
-===============================================================================
-MPLS SR-TE LSP lsp_R1-R4-TE
-Path  (Detail)
-===============================================================================
-Legend :
-    S      - Strict                      L      - Loose
-    A-SID  - Adjacency SID               N-SID  - Node SID
-    +      - Inherited
-===============================================================================
--------------------------------------------------------------------------------
-LSP SR-TE lsp_R1-R4-TE
-Path  R1-R4-TE-strict
--------------------------------------------------------------------------------
-LSP Name    : lsp_R1-R4-TE
-Path LSP ID      : 5632
-From             : 1.1.1.1
-To               : 1.1.1.4
-Admin State      : Up                      Oper State        : Up
-Path Name   : R1-R4-TE-strict
-Path Type        : Primary
-Path Admin       : Up                      Path Oper         : Up
-Path Up Time     : 0d 02:17:24             Path Down Time    : 0d 00:00:00
-Retry Limit      : 0                       Retry Timer       : 30 sec
-Retry Attempt    : 0                       Next Retry In     : 0 sec
-
-PathCompMethod   : none                    OperPathCompMethod: none
-MetricType       : igp                     Oper MetricType   : igp
-LocalSrProt      : preferred               Oper LocalSrProt  : N/A
-LabelStackRed    : Disabled                Oper LabelStackRed: N/A
-
-Bandwidth        : No Reservation          Oper Bandwidth    : 0 Mbps
-Hop Limit        : 255                     Oper HopLimit     : 255
-Setup Priority   : 7                       Oper SetupPriority: 7
-Hold Priority    : 0                       Oper HoldPriority : 0
-Inter-area       : N/A
-
-PCE Updt ID      : 0                       PCE Updt State    : None
-PCE Upd Fail Code: noError
-
-PCE Report       : Disabled+               Oper PCE Report   : Disabled
-PCE Control      : Disabled                Oper PCE Control  : Disabled
-
-Include Groups   :                         Oper IncludeGroups:
-None                                           None
-Exclude Groups   :                         Oper ExcludeGroups:
-None                                           None
-Last Resignal    : n/a
-
-IGP/TE Metric    : 16777215                Oper Metric       : 16777215
-Oper MTU         : 9186                    Path Trans        : 1
-Degraded         : False
-Failure Code     : noError
-Failure Node     : n/a
-Explicit Hops    :
-                  1.1.1.3(S)
-               -> 1.1.1.2(S)
-               -> 1.1.1.4(S)
-Actual Hops      :
-    10.1.3.2(1.1.1.3)(A-SID)                     Record Label        : 524285
- -> 10.2.3.1(1.1.1.2)(A-SID)                     Record Label        : 524287
- -> 10.2.4.2(1.1.1.4)(A-SID)                     Record Label        : 524285
-
-===============================================================================
 ```
 The SR Adjacency-SID (524285 and 524287) is same as the labels specified in the command — show router mpls sr-te-lsp “lsp_R1-R4-TE” path detail.
 The following shows the LFA pre-computed for each destination:
 
 ```
 *A:router1# show router fp-tunnel-table 1
-
-===============================================================================
-IPv4 Tunnel Table Display
-
-Legend:
-label stack is ordered from bottom-most to top-most
-B - FRR Backup
-===============================================================================
-Destination                                  Protocol         Tunnel-ID
-  Lbl/SID
-    NextHop                                                   Intf/Tunnel
-  Lbl/SID (backup)
-    NextHop   (backup)
--------------------------------------------------------------------------------
-1.1.1.2/32                                   SR-ISIS-0         524290
-  519002
-    10.1.2.2                                                   1/1/1
-  519002
-    10.1.3.2(B)                                                1/1/2
-1.1.1.3/32                                   SR-ISIS-0         524292
-  519003
-    10.1.3.2                                                   1/1/2
-  519003
-    10.1.2.2(B)                                                1/1/1
-1.1.1.4/32                                   SR-ISIS-0         524293
-  519004
-    10.1.2.2                                                   1/1/1
-  519004
-    10.1.3.2(B)                                                1/1/2
-1.1.1.4/32                                   SR-TE             655362
-  524285/524287
-    10.1.3.2                                                   SR
-10.1.2.2/32                                  SR                524289
-  3
-    10.1.2.2                                                   1/1/1
-  519002
-    10.1.3.2(B)                                                1/1/2
-10.1.3.2/32                                  SR                524291
-  3
-    10.1.3.2                                                   1/1/2
-  519003
-    10.1.2.2(B)                                                1/1/1
--------------------------------------------------------------------------------
-Total Entries : 6
--------------------------------------------------------------------------------
-===============================================================================
 ````

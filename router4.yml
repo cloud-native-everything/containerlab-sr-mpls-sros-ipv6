@@ -33,34 +33,31 @@ port 1/1/4 {
 router "Base" {
     autonomous-system 65501
     interface "system" {
-        ipv4 {
-            primary {
-                address 1.1.1.4
-                prefix-length 32
+        ipv6 {
+            address fd00::4 {
+                prefix-length 128
             }
         }
     }
     interface "toR2" {
         port 1/1/2
-        ipv4 {
+        ipv6 {
             bfd {
                 admin-state enable
             }
-            primary {
-                address 10.2.4.2
-                prefix-length 29
+            address fd01::2:4:2 {
+                prefix-length 126
             }
         }
     }
     interface "toR3" {
         port 1/1/1
-        ipv4 {
+        ipv6 {
             bfd {
                 admin-state enable
             }
-            primary {
-                address 10.3.4.2
-                prefix-length 29
+            address fd01::3:4:2 {
+                prefix-length 126
             }
         }
     }
@@ -87,14 +84,14 @@ router "Base" {
             }
         }
         interface "system" {
-            ipv4-node-sid {
+            ipv6-node-sid {
                 index 4
             }
         }
         interface "toR2" {
             interface-type point-to-point
             bfd-liveness {
-                ipv4 {
+                ipv6 {
                     include-bfd-tlv true
                 }
             }
@@ -102,7 +99,7 @@ router "Base" {
         interface "toR3" {
             interface-type point-to-point
             bfd-liveness {
-                ipv4 {
+                ipv6 {
                     include-bfd-tlv true
                 }
             }
@@ -113,7 +110,7 @@ router "Base" {
     }
     ldp {
         targeted-session {
-            peer 1.1.1.1 {
+            peer fd00::1 {
             }
         }
     }
@@ -142,14 +139,14 @@ service {
         delivery-type mpls
         sr-isis true
         far-end {
-            ip-address 1.1.1.1
+            ip-address fd00::1
         }
     }
     sdp 5 {
         admin-state enable
         delivery-type mpls
         far-end {
-            ip-address 1.1.1.1
+            ip-address fd00::1
         }
         sr-isis
     }     
