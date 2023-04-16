@@ -4,39 +4,30 @@ mgmt:
   network: clab
 
 topology:
+  kinds:
+    vr-sros:
+      image: vr-sros:22.5.R2
+      license: license-sros22.txt
+      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
+    linux:
+      image: alpine:latest    
   nodes:
     origin1:
       kind: linux
-      image: alpine:latest
     destination1:
       kind: linux
-      image: alpine:latest
     origin2:
       kind: linux
-      image: alpine:latest
     destination2:
       kind: linux
-      image: alpine:latest
     router1:
       kind: vr-sros
-      image: vr-sros:22.5.R2
-      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
-      license: license-sros22.txt      
     router2:
       kind: vr-sros
-      image: vr-sros:22.5.R2
-      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
-      license: license-sros22.txt 
     router3:
       kind: vr-sros
-      image: vr-sros:22.5.R2
-      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
-      license: license-sros22.txt 
     router4:
       kind: vr-sros
-      image: vr-sros:22.5.R2
-      type: "cpu=2 ram=8 max_nics=4 chassis=VSR-I slot=A card=cpm-v slot=1 mda/1=m20-v"
-      license: license-sros22.txt 
 
                   
   links:
