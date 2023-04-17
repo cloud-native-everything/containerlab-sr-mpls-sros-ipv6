@@ -20,12 +20,14 @@ Versions used are:
 * containerlab 0.25.1
 * vr-sros 22.5.R2 (requires license)
 
-SROS image was created using [VR Network Lab](https://github.com/vrnetlab/vrnetlab)
+SROS image was created using [VR Network Lab (hellt)](https://github.com/hellt/vrnetlab)
 IMPORTANT: vr-sos must be set as an image in docker to be pull directly by containerlab
 ```
 # docker images | grep vr-sros
 vr-sros                               22.5.R2                         f33cd7a3732a        3 months ago        965MB
 ```
+
+Add license in the same diretory of the topo.yml file with the name license-sros22.txt
 
 ## Overview
 
@@ -66,7 +68,7 @@ INFO[0000] Parsing & checking topology file: topo.yml
 
 You have direct access (after one min) to management interface via ssh admin/admin
 Remember to change the CLI to model-driven if this is still in Classic.
-You can copy and paste router settings form yaml files directly to CLI after /configure path
+You can copy and paste router settings from yaml files directly to CLI after /configure path
 ```
 A:admin@router4# configure global
 INFO: CLI #2054: Entering global configuration mode
