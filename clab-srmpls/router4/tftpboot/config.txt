@@ -3,9 +3,10 @@
 # Built on Wed Jun 22 14:38:17 PDT 2022 by builder in /builds/c/225B/R2/panos/main/sros
 # Configuration format version 22.5 revision 0
 
-# Generated 2023-04-16T21:53:57.1Z by admin from 172.31.255.29
+# Generated 2023-04-17T13:18:21.7Z by admin from 172.31.255.29
 # Commit ID 1
-#   Committed 2023-04-16T21:53:53.0Z by admin (MD-CLI) from 172.31.255.29
+#   Committed 2023-04-17T13:04:07.5Z by system (MD-CLI) from Console
+#   Log       "System booted version B-22.5.R2."
 
 configure {
     card 1 {
@@ -531,4 +532,4 @@ persistent-indices {
     }
 }
 
-# Finished 2023-04-16T21:53:57.1Z
+# Finished 2023-04-17T13:18:21.7Z

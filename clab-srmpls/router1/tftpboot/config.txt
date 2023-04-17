@@ -3,9 +3,9 @@
 # Built on Wed Jun 22 14:38:17 PDT 2022 by builder in /builds/c/225B/R2/panos/main/sros
 # Configuration format version 22.5 revision 0
 
-# Generated 2023-04-16T21:47:13.4Z by admin from 172.31.255.29
-# Commit ID 1
-#   Committed 2023-04-16T21:47:00.7Z by admin (MD-CLI) from 172.31.255.29
+# Generated 2023-04-17T13:43:07.3Z by admin from 172.31.255.29
+# Commit ID 2
+#   Committed 2023-04-17T13:42:34.6Z by admin (MD-CLI) from 172.31.255.29
 
 configure {
     card 1 {
@@ -93,9 +93,6 @@ configure {
     }
     router "Base" {
         autonomous-system 65501
-        ipv6-te-router-id {
-            interface "system"
-        }
         interface "system" {
             ipv6 {
                 address fd00::1 {
@@ -184,6 +181,7 @@ configure {
         mpls {
             admin-state enable
             path "R1-R4-TE-strict" {
+                admin-state enable
                 hop 1 {
                     ip-address fd00::3
                     type strict
@@ -566,4 +564,4 @@ persistent-indices {
     }
 }
 
-# Finished 2023-04-16T21:47:13.4Z
+# Finished 2023-04-17T13:43:07.4Z
